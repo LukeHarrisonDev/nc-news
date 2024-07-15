@@ -9,7 +9,6 @@ function getArticleById(request, response, next) {
         response.status(200).send({article})
     })
     .catch((error) => {
-        console.log(error, "<< Error in Con")
         next(error)
     })
 }
