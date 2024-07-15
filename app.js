@@ -1,4 +1,4 @@
-const { getArticleById } = require("./controllers/articles.controllers")
+const { getArticleById, getArticles } = require("./controllers/articles.controllers")
 const { getTopics } = require("./controllers/topics.controllers")
 const endpoints = require("./endpoints.json")
 
@@ -11,8 +11,12 @@ app.get("/api", (request, response) => {
 
 app.get("/api/topics", getTopics)
 
+app.get("/api/articles", getArticles)
+
 app.get ("/api/articles/:article_id", getArticleById)
 
+
+//Error Handling
 app.use((error, request, response, next) => {
     if(error.code === "22P02") {
         response.status(400).send({message: "Bad request"})

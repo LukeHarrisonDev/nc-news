@@ -23,7 +23,7 @@ describe("/api", () => {
 
 describe("/api/topics", () => {
     describe("GET", () => {
-        test("GET 200: Responds with a list of topics", () => {
+        test("GET 200: Responds with an array of all topic objects", () => {
             return request(app)
             .get("/api/topics")
             .expect(200)
@@ -38,6 +38,49 @@ describe("/api/topics", () => {
     })
 })
 
+describe("/api/articles", () => {
+    describe("GET", () => {
+        test("GET 200: Responds with an array of all article objects sorted by 'date' by default", () => {
+            return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(13)
+                expect(body.articles).toBeSortedBy("created_at", {descending: true})
+            })
+        })
+        test("GET 200: Responds with an array of all article objects WITHOUT a body property", () => {
+            return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({body}) => {
+                body.articles.forEach((article) => {
+                    expect(article).not.toHaveProperty("body")
+                })
+            })
+        })
+        // test("GET 200: Responds with an array of all article objects with the fields- author, title, article_id, topic, created_at, votes, article_img_url and a comment count for each article", () => {
+        //     return request(app)
+        //     .get("/api/articles")
+        //     .expect(200)
+        //     .then(({body}) => {
+        //         // console.log(body.article[0])
+        //         expect(body.article[0].comment_count).toBe()
+        //         body.articles.forEach((article) => {
+        //             expect(article).toHaveProperty("author")
+        //             expect(article).toHaveProperty("title")
+        //             expect(article).toHaveProperty("article_id")
+        //             expect(article).toHaveProperty("topic")
+        //             expect(article).toHaveProperty("created_at")
+        //             expect(article).toHaveProperty("votes")
+        //             expect(article).toHaveProperty("article_img_url")
+        //             expect(article).toHaveProperty("comment_count")
+        //         })
+        //     })
+        // })
+    })
+})
+
 describe("/api/articles/:article_id", () => {
     describe("GET", () => {
         test("GET 200: Responds with an article with the given ID from the endpoint", () => {
@@ -45,14 +88,14 @@ describe("/api/articles/:article_id", () => {
             .get("/api/articles/3")
             .expect(200)
             .then(({body}) => {
-                expect(body.article[0]).toHaveProperty("author")
-                expect(body.article[0]).toHaveProperty("title", "Eight pug gifs that remind me of mitch")
-                expect(body.article[0]).toHaveProperty("article_id", 3)
-                expect(body.article[0]).toHaveProperty("body")
-                expect(body.article[0]).toHaveProperty("topic")
-                expect(body.article[0]).toHaveProperty("created_at")
-                expect(body.article[0]).toHaveProperty("votes")
-                expect(body.article[0]).toHaveProperty("article_img_url")
+                expect(body.article).toHaveProperty("author")
+                expect(body.article).toHaveProperty("title", "Eight pug gifs that remind me of mitch")
+                expect(body.article).toHaveProperty("article_id", 3)
+                expect(body.article).toHaveProperty("body")
+                expect(body.article).toHaveProperty("topic")
+                expect(body.article).toHaveProperty("created_at")
+                expect(body.article).toHaveProperty("votes")
+                expect(body.article).toHaveProperty("article_img_url")
             })
         })
         test("GET 400: Responds with a 'Bad request' Error when entering an ID that is not a number", () => {
