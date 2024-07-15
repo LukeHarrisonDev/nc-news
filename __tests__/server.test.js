@@ -10,7 +10,7 @@ afterAll (() => db.end())
 
 describe("/api", () => {
     describe("GET", () => {
-        test.only("GET 200: Responds with the endpoints.json file", () => {
+        test("GET 200: Responds with the endpoints.json file", () => {
             return request(app)
             .get("/api")
             .expect(200)
