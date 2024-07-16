@@ -1,4 +1,4 @@
-const { getArticleById } = require("./controllers/articles.controllers")
+const { getArticleById, getArticles } = require("./controllers/articles.controllers")
 const { getTopics } = require("./controllers/topics.controllers")
 const endpoints = require("./endpoints.json")
 
@@ -11,7 +11,14 @@ app.get("/api", (request, response) => {
 
 app.get("/api/topics", getTopics)
 
+app.get("/api/articles", getArticles)
+
 app.get ("/api/articles/:article_id", getArticleById)
+
+//Error Handling - Will put in seperate file
+app.all("/*", (request, response) => {
+    response.status(404).send({message: "Not found"})
+})
 
 app.use((error, request, response, next) => {
     if(error.code === "22P02") {
@@ -33,6 +40,7 @@ app.use((error, request, response, next) => {
     }
     next(error)
 })
+
 
 app.use((error, request, response, next) => {
     response.status(500).send({message: "Internal server error"})

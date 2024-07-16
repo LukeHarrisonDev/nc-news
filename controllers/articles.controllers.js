@@ -1,11 +1,10 @@
-const { fetchArticleById } = require("../models/articles.models")
+const { fetchArticleById, fetchArticles } = require("../models/articles.models")
 
 
 function getArticleById(request, response, next) {
     const id = request.params.article_id
     fetchArticleById(id)
-    .then(({rows}) => {
-        const article = rows
+    .then((article) => {
         response.status(200).send({article})
     })
     .catch((error) => {
@@ -13,4 +12,11 @@ function getArticleById(request, response, next) {
     })
 }
 
-module.exports = {getArticleById}
+function getArticles(request, response, next) {
+    fetchArticles()
+    .then((articles) => {
+        response.status(200).send({articles})
+    })
+}
+
+module.exports = {getArticleById, getArticles}
