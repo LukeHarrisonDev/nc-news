@@ -1,6 +1,5 @@
 const { fetchArticleById, fetchArticles } = require("../models/articles.models")
 
-
 function getArticleById(request, response, next) {
     const id = request.params.article_id
     fetchArticleById(id)

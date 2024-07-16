@@ -56,7 +56,6 @@ describe("/api/articles", () => {
             .get("/api/articles")
             .expect(200)
             .then(({body}) => {
-                console.log(JSON.stringify(body))
                 expect(body.articles).toHaveLength(13)
                 expect(body.articles).toBeSortedBy("created_at", {descending: true})
             })
@@ -131,6 +130,61 @@ describe("/api/articles/:article_id", () => {
             .get("/api/articles/9999999999999")
             .expect(404)
             .then(({body}) => {
+                expect(body).toEqual({message: "Not found"})
+            })
+        })
+    })
+})
+
+describe("/api/articles/:article_id/comments", () => {
+    describe("GET", () => {
+        test("GET 200: Responds with an array of all comment objects that relate to the given article_id, sorted by 'date' by default", () => {
+            return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comments).toHaveLength(11)
+                expect(body.comments).toBeSortedBy("created_at", {descending: true})
+
+            })
+        })
+        test("GET 200: Responds with an array of all comment objects that relate to the given article_id with the properties of comment_id, votes, created_at, author, body and article_id", () => {
+            return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then (({body}) => {
+                console.log(JSON.stringify(body))
+                body.comments.forEach((comment) => {
+                    expect(comment).toHaveProperty("comment_id")
+                    expect(comment).toHaveProperty("votes")
+                    expect(comment).toHaveProperty("created_at")
+                    expect(comment).toHaveProperty("author")
+                    expect(comment).toHaveProperty("body")
+                    expect(comment).toHaveProperty("article_id")
+                })
+            })
+        })
+        test("GET 400: Responds with a 'Bad request' when entering an article ID that is not a number", () => {
+            return request(app)
+            .get("/api/articles/not-a-number/comments")
+            .expect(400)
+            .then (({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("GET 404: Responds with a 'Not found' when entering an article ID that doesn't exist", () => {
+            return request(app)
+            .get("/api/articles/99999/comments")
+            .expect(404)
+            .then (({body}) => {
+                expect(body).toEqual({message: "Not found"})
+            })
+        })
+        test("GET 404: Responds with a 'Not found' Error when entering an ID that is out of range", () => {
+            return request(app)
+            .get("/api/articles/9999999999999/comments")
+            .expect(404)
+            .then (({body}) => {
                 expect(body).toEqual({message: "Not found"})
             })
         })
