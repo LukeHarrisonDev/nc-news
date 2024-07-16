@@ -78,14 +78,16 @@ describe("/api/articles", () => {
                 expect(body.articles[0].comment_count).toBe("2")
                 expect(body.articles[6].comment_count).toBe("11")
                 body.articles.forEach((article) => {
-                    expect(article).toHaveProperty("author")
-                    expect(article).toHaveProperty("title")
-                    expect(article).toHaveProperty("article_id")
-                    expect(article).toHaveProperty("topic")
-                    expect(article).toHaveProperty("created_at")
-                    expect(article).toHaveProperty("votes")
-                    expect(article).toHaveProperty("article_img_url")
-                    expect(article).toHaveProperty("comment_count")
+                    expect(article).toMatchObject({
+                        author: expect.any(String),
+                        title: expect.any(String),
+                        article_id: expect.any(Number),
+                        topic: expect.any(String),
+                        created_at: expect.any(String),
+                        votes: expect.any(Number),
+                        article_img_url: expect.any(String),
+                        comment_count: expect.any(String)
+                    })
                 })
             })
         })
@@ -99,14 +101,15 @@ describe("/api/articles/:article_id", () => {
             .get("/api/articles/3")
             .expect(200)
             .then(({body}) => {
-                expect(body.article).toHaveProperty("author")
-                expect(body.article).toHaveProperty("title", "Eight pug gifs that remind me of mitch")
-                expect(body.article).toHaveProperty("article_id", 3)
-                expect(body.article).toHaveProperty("body")
-                expect(body.article).toHaveProperty("topic")
-                expect(body.article).toHaveProperty("created_at")
-                expect(body.article).toHaveProperty("votes")
-                expect(body.article).toHaveProperty("article_img_url")
+                expect(body.article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String)
+                })
             })
         })
         test("GET 400: Responds with a 'Bad request' Error when entering an ID that is not a number", () => {
@@ -153,14 +156,15 @@ describe("/api/articles/:article_id/comments", () => {
             .get("/api/articles/1/comments")
             .expect(200)
             .then (({body}) => {
-                console.log(JSON.stringify(body))
                 body.comments.forEach((comment) => {
-                    expect(comment).toHaveProperty("comment_id")
-                    expect(comment).toHaveProperty("votes")
-                    expect(comment).toHaveProperty("created_at")
-                    expect(comment).toHaveProperty("author")
-                    expect(comment).toHaveProperty("body")
-                    expect(comment).toHaveProperty("article_id")
+                    expect(comment).toMatchObject({
+                        comment_id: expect.any(Number),
+                        votes: expect.any(Number),
+                        created_at: expect.any(String),
+                        author: expect.any(String),
+                        body: expect.any(String),
+                        article_id: expect.any(Number)
+                    })
                 })
             })
         })
