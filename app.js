@@ -15,8 +15,11 @@ app.get("/api/articles", getArticles)
 
 app.get ("/api/articles/:article_id", getArticleById)
 
+//Error Handling - Will put in seperate file
+app.all("/*", (request, response) => {
+    response.status(404).send({message: "Not found"})
+})
 
-//Error Handling
 app.use((error, request, response, next) => {
     if(error.code === "22P02") {
         response.status(400).send({message: "Bad request"})
@@ -37,6 +40,7 @@ app.use((error, request, response, next) => {
     }
     next(error)
 })
+
 
 app.use((error, request, response, next) => {
     response.status(500).send({message: "Internal server error"})

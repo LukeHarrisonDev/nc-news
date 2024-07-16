@@ -8,6 +8,17 @@ const endpoints = require("../endpoints.json")
 beforeEach (() => seed(data))
 afterAll (() => db.end())
 
+describe("/not-an-endpoint", () => {
+    test("GET 404: Responds with 'Not found' if the endpoint doesn't exist", () => {
+        return request(app)
+        .get("/not-an-endpoint")
+        .expect(404)
+        .then(({body}) => {
+            expect(body).toEqual({message: "Not found"})
+        })
+    })
+})
+
 describe("/api", () => {
     describe("GET", () => {
         test("GET 200: Responds with the endpoints.json file", () => {
@@ -45,6 +56,7 @@ describe("/api/articles", () => {
             .get("/api/articles")
             .expect(200)
             .then(({body}) => {
+                console.log(JSON.stringify(body))
                 expect(body.articles).toHaveLength(13)
                 expect(body.articles).toBeSortedBy("created_at", {descending: true})
             })
@@ -59,25 +71,25 @@ describe("/api/articles", () => {
                 })
             })
         })
-        // test("GET 200: Responds with an array of all article objects with the fields- author, title, article_id, topic, created_at, votes, article_img_url and a comment count for each article", () => {
-        //     return request(app)
-        //     .get("/api/articles")
-        //     .expect(200)
-        //     .then(({body}) => {
-        //         // console.log(body.article[0])
-        //         expect(body.article[0].comment_count).toBe()
-        //         body.articles.forEach((article) => {
-        //             expect(article).toHaveProperty("author")
-        //             expect(article).toHaveProperty("title")
-        //             expect(article).toHaveProperty("article_id")
-        //             expect(article).toHaveProperty("topic")
-        //             expect(article).toHaveProperty("created_at")
-        //             expect(article).toHaveProperty("votes")
-        //             expect(article).toHaveProperty("article_img_url")
-        //             expect(article).toHaveProperty("comment_count")
-        //         })
-        //     })
-        // })
+        test("GET 200: Responds with an array of all article objects with the fields- author, title, article_id, topic, created_at, votes, article_img_url and a comment count for each article", () => {
+            return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles[0].comment_count).toBe("2")
+                expect(body.articles[6].comment_count).toBe("11")
+                body.articles.forEach((article) => {
+                    expect(article).toHaveProperty("author")
+                    expect(article).toHaveProperty("title")
+                    expect(article).toHaveProperty("article_id")
+                    expect(article).toHaveProperty("topic")
+                    expect(article).toHaveProperty("created_at")
+                    expect(article).toHaveProperty("votes")
+                    expect(article).toHaveProperty("article_img_url")
+                    expect(article).toHaveProperty("comment_count")
+                })
+            })
+        })
     })
 })
 
