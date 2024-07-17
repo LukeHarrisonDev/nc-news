@@ -193,4 +193,100 @@ describe("/api/articles/:article_id/comments", () => {
             })
         })
     })
+    describe("POST", () => {
+        test("POST 201: Responds with 201 status code and the posted comment", () => {
+            const newComment = {
+                username: "lurker",
+                body: "Hello world"
+            }
+            return request(app)
+            .post("/api/articles/1/comments")
+            .send(newComment)
+            .expect(201)
+            .then(({body}) => {
+                expect(body.comment).toMatchObject({
+                    comment_id: expect.any(Number),
+                    votes: expect.any(Number),
+                    created_at: expect.any(String),
+                    author: expect.any(String),
+                    body: expect.any(String),
+                    article_id: expect.any(Number)
+                })
+            })
+        })
+        test("POST 400: Responds with a 'Bad request' when entering an article ID that is not a number", () => {
+            const newComment = {
+                username: "lurker",
+                body: "Hello world"
+            }
+            return request(app)
+            .post("/api/articles/not-a-number/comments")
+            .send(newComment)
+            .expect(400)
+            .then (({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("POST 404: Responds with a 'Not found' when entering an article ID that doesn't exist", () => {
+            const newComment = {
+                username: "lurker",
+                body: "Hello world"
+            }
+            return request(app)
+            .post("/api/articles/99999/comments")
+            .send(newComment)
+            .expect(404)
+            .then (({body}) => {
+                expect(body).toEqual({message: "Not found"})
+            })
+        })
+        test("POST 404: Responds with a 'Not found' when entering an article ID that is out of range", () => {
+            const newComment = {
+                username: "lurker",
+                body: "Hello world"
+            }
+            return request(app)
+            .post("/api/articles/9999999999999/comments")
+            .send(newComment)
+            .expect(404)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Not found"})
+            })
+        })
+        test("POST 400: Responds with a 'Bad request' when sending an empty object on the request body", () => {
+            return request(app)
+            .post("/api/articles/1/comments")
+            .send({})
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("POST 400: Responds with a 'Bad request' when entering a username that doesn't exist", () => {
+            const newComment = {
+                username: "not-an-existing-user",
+                body: "Hello world"
+            }
+            return request(app)
+            .post("/api/articles/1/comments")
+            .send(newComment)
+            .expect(400)
+            .then (({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("POST 400: Responds with a 'Bad request' when sending an empty comment body", () => {
+            const newComment = {
+                username: "lurker",
+                body: ""
+            }
+            return request(app)
+            .post("/api/articles/1/comments")
+            .send(newComment)
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+    })
 })
