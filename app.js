@@ -1,5 +1,5 @@
 const { getArticleById, getArticles, patchArticleById } = require("./controllers/articles.controllers")
-const { getComments, postComment } = require("./controllers/comments.controllers")
+const { getComments, postComment, deleteComment } = require("./controllers/comments.controllers")
 const { getTopics } = require("./controllers/topics.controllers")
 const endpoints = require("./endpoints.json")
 const {
@@ -26,6 +26,8 @@ app.patch("/api/articles/:article_id", patchArticleById)
 
 app.get("/api/articles/:article_id/comments", getComments)
 app.post("/api/articles/:article_id/comments", postComment)
+
+app.delete("/api/comments/:comment_id", deleteComment)
 
 app.all("/*", catchInvalidEndpoints)
 
