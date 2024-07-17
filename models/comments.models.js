@@ -1,5 +1,4 @@
 const db = require("../db/connection")
-const format = require("pg-format")
 
 function fetchComments(id) {
     let sqlString = 
@@ -19,7 +18,6 @@ function insertComment(newComment, article_id) {
     if (Object.keys(newComment).length <= 1 || newComment.body.length === 0) {
         return Promise.reject({status:400, message: "Bad request"})
     }
-    
     let sqlString =
     `INSERT INTO comments (author, body, article_id)
     VALUES ($1, $2, $3)
