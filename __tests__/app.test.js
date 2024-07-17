@@ -137,6 +137,96 @@ describe("/api/articles/:article_id", () => {
             })
         })
     })
+    describe("PATCH", () => {
+        test("PATCH 200: Responds with an article object of the given ID", () => {
+            const newVote = {inc_votes: 1}
+            return request(app)
+            .patch("/api/articles/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String)
+                })
+            })
+        })
+        test("PATCH 200: Responds with an article objects votes incremented by 1", () => {
+            const newVote = {inc_votes: 1}
+            return request(app)
+            .patch("/api/articles/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.article.votes).toBe(101)
+            })
+        })
+        test("PATCH 200: Responds with an article objects votes incremented by more than 1", () => {
+            const newVote = {inc_votes: 102}
+            return request(app)
+            .patch("/api/articles/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.article.votes).toBe(202)
+            })
+        })
+        test("PATCH 200: Responds with an article objects votes decremented by 1", () => {
+            const newVote = {inc_votes: -1}
+            return request(app)
+            .patch("/api/articles/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.article.votes).toBe(99)
+            })
+        })
+        test("PATCH 200: Responds with an article objects votes decremented by more than 1", () => {
+            const newVote = {inc_votes: -55}
+            return request(app)
+            .patch("/api/articles/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.article.votes).toBe(45)
+            })
+        })
+        test("PATCH 200: Responds with an article objects votes incremented by more than 1", () => {
+            const newVote = {inc_votes: -125}
+            return request(app)
+            .patch("/api/articles/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.article.votes).toBe(0)
+            })
+        })
+
+        test("PATCH 400: Responds with 'Bad request' if votes is not a number", () => {
+            const newVote = {inc_votes: "not-a-number"}
+            return request(app)
+            .patch("/api/articles/1")
+            .send(newVote)
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("PATCH 400: Responds with a 'Bad request' when sending an empty object on the request body", () => {
+            return request(app)
+            .patch("/api/articles/1")
+            .send({})
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+    })
 })
 
 describe("/api/articles/:article_id/comments", () => {
