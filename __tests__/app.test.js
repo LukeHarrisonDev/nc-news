@@ -380,3 +380,37 @@ describe("/api/articles/:article_id/comments", () => {
         })
     })
 })
+
+describe("/api/comments/:comment_id", () => {
+    describe("DELETE", () => {
+        test("DELETE 204: Responds with 'No content' if the given comment has been deleted", () => {
+            return request(app)
+            .delete("/api/comments/1")
+            .expect(204)
+        })
+        test("DELETE 400: Responds with 'Bad request' when given an ID that is not a number", () => {
+            return request(app)
+            .delete("/api/comments/not-a-number")
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("DELETE 404: Responds with a 'Not found' when given an ID that doesn't exist", () => {
+            return request(app)
+            .delete("/api/comments/999")
+            .expect(404)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Not found"})
+            })
+        })
+        test("DELETE 404: Responds with a 'Not found' when given an ID that is out of range", () => {
+            return request(app)
+            .delete("/api/comments/9999999999999")
+            .expect(404)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Not found"})
+            })
+        })
+    })
+})
