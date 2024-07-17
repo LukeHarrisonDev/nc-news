@@ -27,4 +27,31 @@ function fetchArticles() {
     })
 }
 
-module.exports = {fetchArticleById, fetchArticles}
+function updateArticleById(id, votes) {
+    if (typeof votes !== 'number') {
+        return Promise.reject({status:400, message: "Bad request"})
+    }
+    return db.query(
+        `SELECT votes
+        FROM articles
+        WHERE article_id = $1;`, [id])
+    .then(({rows}) => {
+        let currentVotes = rows[0].votes
+        let totalVotes = currentVotes += votes
+        if (totalVotes < 0) {
+            totalVotes = 0
+        }
+        const votesAndId = [totalVotes, id]
+        let sqlString = 
+        `UPDATE articles
+        SET votes = $1
+        WHERE article_id = $2
+        RETURNING *`
+        return db.query(sqlString, votesAndId)
+        .then(({rows}) => {
+            return rows[0]
+        })
+    })
+}
+
+module.exports = {fetchArticleById, fetchArticles, updateArticleById}
