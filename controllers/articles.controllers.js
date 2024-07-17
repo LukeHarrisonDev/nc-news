@@ -1,8 +1,9 @@
+const { sort } = require("../db/data/test-data/articles")
 const { fetchArticleById, fetchArticles, updateArticleById } = require("../models/articles.models")
 
 function getArticleById(request, response, next) {
-    const id = request.params.article_id
-    fetchArticleById(id)
+    const article_id = request.params.article_id
+    fetchArticleById(article_id)
     .then((article) => {
         response.status(200).send({article})
     })
@@ -12,7 +13,9 @@ function getArticleById(request, response, next) {
 }
 
 function getArticles(request, response, next) {
-    fetchArticles()
+    const sort_by = request.query.sort_by
+    const order = request.query.order
+    fetchArticles(sort_by, order)
     .then((articles) => {
         response.status(200).send({articles})
     })
@@ -22,9 +25,9 @@ function getArticles(request, response, next) {
 }
 
 function patchArticleById(request, response, next) {
-    const id = request.params.article_id
+    const article_id = request.params.article_id
     const votes = request.body.inc_votes
-    updateArticleById(id, votes)
+    updateArticleById(article_id, votes)
     .then((article) => {
         response.status(200).send({article})
     })

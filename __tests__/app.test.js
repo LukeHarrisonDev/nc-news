@@ -92,6 +92,53 @@ describe("/api/articles", () => {
             })
         })
     })
+    describe("GET Queries", () => {
+        test("?sort_by=: Responds with all article objects ordered by the column of the given 'sort_by' query", () => {
+            return request(app)
+            .get("/api/articles?sort_by=title")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(13)
+                expect(body.articles).toBeSortedBy('title', {descending: true})
+            })
+        })
+        test("?sort_by= 400: Responds with 'Bad request' when the given column name doesn't exist in the table", () => {
+            return request(app)
+            .get("/api/articles?sort_by=not-a-column")
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("?order=: Responds with all article objects ordered by the given 'order' query", () => {
+            return request(app)
+            .get("/api/articles?order=asc")
+            .expect(200)
+            .then(({body})=> {
+                expect(body.articles).toHaveLength(13)
+                expect(body.articles).toBeSortedBy('created_at')
+            })
+        })
+        //400
+        test("?order= 400: Responds with 'Bad request' when the 'order' query is anything apart from 'asc' or 'desc'", () => {
+            return request(app)
+            .get("/api/articles?order=not-an-order")
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        //Tests both
+        test("?sort_by=&order= 200: Responds with all article objects in the given 'order', ordered by the column of the given 'sort_by' query", () => {
+            return request(app)
+            .get("/api/articles?sort_by=title&order=asc")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(13)
+                expect(body.articles).toBeSortedBy('title')
+            })
+        })
+    })
 })
 
 describe("/api/users", () => {
@@ -101,6 +148,7 @@ describe("/api/users", () => {
             .get("/api/users")
             .expect(200)
             .then(({body}) => {
+                expect(body.users).toHaveLength(4)
                 body.users.forEach((user) => {
                     expect(user).toMatchObject({
                         username: expect.any(String),
