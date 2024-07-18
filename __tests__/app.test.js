@@ -127,13 +127,55 @@ describe("/api/articles", () => {
                 expect(body).toEqual({message: "Bad request"})
             })
         })
-        test("?sort_by=&order= 200: Responds with all article objects in the given 'order', ordered by the column of the given 'sort_by' query", () => {
+        test("?sort_by=&order= 200: Responds with all article objects with in the given 'order', ordered by the column of the given 'sort_by' query", () => {
             return request(app)
             .get("/api/articles?sort_by=title&order=asc")
             .expect(200)
             .then(({body}) => {
                 expect(body.articles).toHaveLength(13)
                 expect(body.articles).toBeSortedBy('title')
+            })
+        })
+        test("?topic= 200: Responds with only the article objects that relate to the given topic", () => {
+            return request(app)
+            .get("/api/articles?topic=mitch")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(12)
+                body.articles.forEach((article) => {
+                    expect(article.topic).toBe("mitch")
+                    expect(article.topic).not.toBe("cats")
+                })
+            })
+        })
+        test("?topic= 400: Responds with 'Bad request' when the 'topic' query doesn't exist", () => {
+            return request(app)
+            .get("/api/articles?topic=not-a-topic")
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("?topic= 200: Responds with an empty array when the 'topic' exists but has no data associated with it", () => {
+            return request(app)
+            .get("/api/articles?topic=paper")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(0)
+                expect(body.articles).toEqual([])
+            })
+        })
+        test("?sort_by=&order=&topic= 200: Responds with only the article objects from the given 'topic', with in the given 'order', ordered by the column of the given 'sort_by' query,", () => {
+            return request(app)
+            .get("/api/articles?sort_by=title&order=asc&topic=mitch")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(12)
+                expect(body.articles).toBeSortedBy('title')
+                body.articles.forEach((article) => {
+                    expect(article.topic).toBe("mitch")
+                    expect(article.topic).not.toBe("cats")
+                })
             })
         })
     })
