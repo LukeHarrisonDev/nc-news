@@ -93,7 +93,7 @@ describe("/api/articles", () => {
         })
     })
     describe("GET Queries", () => {
-        test("?sort_by=: Responds with all article objects ordered by the column of the given 'sort_by' query", () => {
+        test("?sort_by= 200: Responds with all article objects ordered by the column of the given 'sort_by' query", () => {
             return request(app)
             .get("/api/articles?sort_by=title")
             .expect(200)
@@ -110,7 +110,7 @@ describe("/api/articles", () => {
                 expect(body).toEqual({message: "Bad request"})
             })
         })
-        test("?order=: Responds with all article objects ordered by the given 'order' query", () => {
+        test("?order= 200: Responds with all article objects ordered by the given 'order' query", () => {
             return request(app)
             .get("/api/articles?order=asc")
             .expect(200)
@@ -119,7 +119,6 @@ describe("/api/articles", () => {
                 expect(body.articles).toBeSortedBy('created_at')
             })
         })
-        //400
         test("?order= 400: Responds with 'Bad request' when the 'order' query is anything apart from 'asc' or 'desc'", () => {
             return request(app)
             .get("/api/articles?order=not-an-order")
@@ -128,7 +127,6 @@ describe("/api/articles", () => {
                 expect(body).toEqual({message: "Bad request"})
             })
         })
-        //Tests both
         test("?sort_by=&order= 200: Responds with all article objects in the given 'order', ordered by the column of the given 'sort_by' query", () => {
             return request(app)
             .get("/api/articles?sort_by=title&order=asc")
@@ -212,14 +210,15 @@ describe("/api/articles/:article_id", () => {
             .send(newVote)
             .expect(200)
             .then(({body}) => {
-                expect(body.article).toMatchObject({
-                    author: expect.any(String),
-                    title: expect.any(String),
-                    article_id: expect.any(Number),
-                    topic: expect.any(String),
-                    created_at: expect.any(String),
-                    votes: expect.any(Number),
-                    article_img_url: expect.any(String)
+                expect(body.article).toEqual({
+                    article_id: 1,
+                    title: 'Living in the shadow of a great man',
+                    topic: 'mitch',
+                    author: 'butter_bridge',
+                    body: 'I find this existence challenging',
+                    created_at: '2020-07-09T20:11:00.000Z',
+                    votes: 101,
+                    article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
                 })
             })
         })
@@ -233,7 +232,7 @@ describe("/api/articles/:article_id", () => {
                 expect(body.article.votes).toBe(101)
             })
         })
-        test("PATCH 200: Responds with an article objects votes incremented by more than 1", () => {
+        test("PATCH 200: Responds with an article objects votes increased by more than 1", () => {
             const newVote = {inc_votes: 102}
             return request(app)
             .patch("/api/articles/1")
@@ -253,7 +252,7 @@ describe("/api/articles/:article_id", () => {
                 expect(body.article.votes).toBe(99)
             })
         })
-        test("PATCH 200: Responds with an article objects votes decremented by more than 1", () => {
+        test("PATCH 200: Responds with an article objects votes decreased by more than 1", () => {
             const newVote = {inc_votes: -55}
             return request(app)
             .patch("/api/articles/1")
@@ -263,7 +262,7 @@ describe("/api/articles/:article_id", () => {
                 expect(body.article.votes).toBe(45)
             })
         })
-        test("PATCH 200: Responds with an article objects votes incremented by more than 1", () => {
+        test("PATCH 200: Responds with an article objects with it's votes at zero if attempting to reduce the number lower than 0", () => {
             const newVote = {inc_votes: -125}
             return request(app)
             .patch("/api/articles/1")
@@ -293,6 +292,7 @@ describe("/api/articles/:article_id", () => {
                 expect(body).toEqual({message: "Bad request"})
             })
         })
+        //// PATCH A RESOURCE THAT DOESN'T EXIST
     })
 })
 
