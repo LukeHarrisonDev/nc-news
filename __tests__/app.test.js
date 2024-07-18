@@ -209,14 +209,15 @@ describe("/api/articles/:article_id", () => {
             .expect(200)
             .then(({body}) => {
                 expect(body.article).toMatchObject({
-                    author: expect.any(String),
-                    title: expect.any(String),
-                    article_id: expect.any(Number),
-                    topic: expect.any(String),
-                    created_at: expect.any(String),
-                    votes: expect.any(Number),
-                    article_img_url: expect.any(String)
-                })
+                    article_id: 3,
+                    title: 'Eight pug gifs that remind me of mitch',
+                    topic: 'mitch',
+                    author: 'icellusedkars',
+                    body: 'some gifs',
+                    created_at: '2020-11-03T09:12:00.000Z',
+                    votes: 0,
+                    article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+                  })
             })
         })
         test("GET 400: Responds with a 'Bad request' Error when entering an ID that is not a number", () => {
@@ -241,6 +242,16 @@ describe("/api/articles/:article_id", () => {
             .expect(404)
             .then(({body}) => {
                 expect(body).toEqual({message: "Not found"})
+            })
+        })
+        test("GET 200: Responds with an article with the 'comment_count' included", () => {
+            return request(app)
+            .get("/api/articles/1")
+            .expect(200)
+            .then (({body})=> {
+                expect(body.article).toMatchObject({
+                    comment_count: "11"
+                })
             })
         })
     })

@@ -1,19 +1,26 @@
 const db = require("../db/connection")
-const { checkTopicExists } = require("./model-utils")
+const { checkTopicExists } = require("./model-utils");
 
 function fetchArticleById(articleId) {
-  let sqlString = `SELECT * FROM articles
-    WHERE article_id = $1`;
-  return db.query(sqlString, [articleId]).then(({ rows }) => {
+  let sqlString =
+  `SELECT articles.*, COUNT(comments.comment_id) AS comment_count
+  FROM articles
+  LEFT JOIN comments
+  ON articles.article_id = comments.article_id
+  WHERE articles.article_id = $1
+  GROUP BY articles.article_id`
+
+  return db.query(sqlString, [articleId])
+  .then(({ rows }) => {
     if (rows.length === 0) {
       return Promise.reject({ status: 404, message: "Not found" });
     }
     return rows[0];
-  });
+  })
 }
 
 function fetchArticles(sortBy = "created_at", order = "desc", topic) {
-    let topicExists = []
+    let topicExists = [];
 
     const greenList = [
         "author",
@@ -27,20 +34,20 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
     ];
 
     if (!greenList.includes(sortBy)) {
-        return Promise.reject({ status: 400, message: "Bad request" })
+        return Promise.reject({ status: 400, message: "Bad request" });
     }
-    const queryValues = []
+    const queryValues = [];
     let sqlString = `SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.article_id) AS comment_count
         FROM articles
-        LEFT JOIN comments ON articles.article_id = comments.article_id `
+        LEFT JOIN comments ON articles.article_id = comments.article_id `;
 
     if (topic) {
         return checkTopicExists(topic).then((result) => {
         if (result === false) {
-            return Promise.reject({ status: 400, message: "Bad request" })
+            return Promise.reject({ status: 400, message: "Bad request" });
         } else {
             sqlString += `WHERE topic = $1 `
-            queryValues.push(topic)
+            queryValues.push(topic);
 
             sqlString += `GROUP BY articles.article_id `
 
@@ -51,15 +58,15 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
             } else if (order === "desc") {
                 sqlString += `DESC`
             } else if (order) {
-                return Promise.reject({ status: 400, message: "Bad request" })
+                return Promise.reject({ status: 400, message: "Bad request" });
             }
             }
 
             return db.query(sqlString, queryValues).then(({ rows }) => {
-                return rows
+                return rows;
             })
             }
-        })
+        });
     } else {
         sqlString += `GROUP BY articles.article_id `
 
@@ -70,7 +77,7 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
             } else if (order === "desc") {
                 sqlString += `DESC`
             } else if (order) {
-                return Promise.reject({ status: 400, message: "Bad request" })
+                return Promise.reject({ status: 400, message: "Bad request" });
             }
             }
 
