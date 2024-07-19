@@ -21,12 +21,17 @@ describe("/not-an-endpoint", () => {
 
 describe("/api", () => {
     describe("GET", () => {
-        test("GET 200: Responds with the endpoints.json file", () => {
+        test("GET 200: Responds with the endpoints.json file with the relevant keys", () => {
             return request(app)
             .get("/api")
             .expect(200)
             .then(({body}) => {
                 expect(body.endpoints).toEqual(endpoints)
+                for (const endpoint in body.endpoints) {
+                    expect(body.endpoints[endpoint]).toHaveProperty("description")
+                    expect(body.endpoints[endpoint]).toHaveProperty("queries")
+                    expect(body.endpoints[endpoint]).toHaveProperty("exampleResponse")
+                }
             })
         })
     })
@@ -43,6 +48,26 @@ describe("/api/topics", () => {
                 body.topics.forEach((topic) => {
                     expect(topic).toHaveProperty("slug")
                     expect(topic).toHaveProperty("description")
+                })
+            })
+        })
+    })
+})
+
+describe("/api/users", () => {
+    describe("GET", () => {
+        test("GET 200: Responds with an array of all user objects", () => {
+            return request(app)
+            .get("/api/users")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.users).toHaveLength(4)
+                body.users.forEach((user) => {
+                    expect(user).toMatchObject({
+                        username: expect.any(String),
+                        name: expect.any(String),
+                        avatar_url: expect.any(String)
+                    })
                 })
             })
         })
@@ -116,7 +141,7 @@ describe("/api/articles", () => {
             .expect(200)
             .then(({body})=> {
                 expect(body.articles).toHaveLength(13)
-                expect(body.articles).toBeSortedBy('created_at')
+                expect(body.articles).toBeSortedBy('created_at', {ascending: true})
             })
         })
         test("?order= 400: Responds with 'Bad request' when the 'order' query is anything apart from 'asc' or 'desc'", () => {
@@ -144,7 +169,6 @@ describe("/api/articles", () => {
                 expect(body.articles).toHaveLength(12)
                 body.articles.forEach((article) => {
                     expect(article.topic).toBe("mitch")
-                    expect(article.topic).not.toBe("cats")
                 })
             })
         })
@@ -175,26 +199,6 @@ describe("/api/articles", () => {
                 body.articles.forEach((article) => {
                     expect(article.topic).toBe("mitch")
                     expect(article.topic).not.toBe("cats")
-                })
-            })
-        })
-    })
-})
-
-describe("/api/users", () => {
-    describe("GET", () => {
-        test("GET 200: Responds with an array of all user objects", () => {
-            return request(app)
-            .get("/api/users")
-            .expect(200)
-            .then(({body}) => {
-                expect(body.users).toHaveLength(4)
-                body.users.forEach((user) => {
-                    expect(user).toMatchObject({
-                        username: expect.any(String),
-                        name: expect.any(String),
-                        avatar_url: expect.any(String)
-                    })
                 })
             })
         })
@@ -295,16 +299,7 @@ describe("/api/articles/:article_id", () => {
                 expect(body.article.votes).toBe(202)
             })
         })
-        test("PATCH 200: Responds with an article objects votes decremented by 1", () => {
-            const newVote = {inc_votes: -1}
-            return request(app)
-            .patch("/api/articles/1")
-            .send(newVote)
-            .expect(200)
-            .then(({body}) => {
-                expect(body.article.votes).toBe(99)
-            })
-        })
+
         test("PATCH 200: Responds with an article objects votes decreased by more than 1", () => {
             const newVote = {inc_votes: -55}
             return request(app)
@@ -345,7 +340,17 @@ describe("/api/articles/:article_id", () => {
                 expect(body).toEqual({message: "Bad request"})
             })
         })
-        //// PATCH A RESOURCE THAT DOESN'T EXIST
+        test("PATCH 400: Responds with a 'Bad request' when sending an object with a key, who's column doesn't exist on the articles table", () => {
+            const newVote = {notAColumn: 40}
+            return request(app)
+            .patch("/api/articles/1")
+            .send(newVote)
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+
+        })
     })
 })
 
@@ -361,6 +366,7 @@ describe("/api/articles/:article_id/comments", () => {
 
             })
         })
+        /// DO A TEST FOR WHEN AN ARTICLE DOESNT HAVE COMMENTS
         test("GET 200: Responds with an array of all comment objects that relate to the given article_id with the properties of comment_id, votes, created_at, author, body and article_id", () => {
             return request(app)
             .get("/api/articles/1/comments")
@@ -418,8 +424,8 @@ describe("/api/articles/:article_id/comments", () => {
                     comment_id: expect.any(Number),
                     votes: expect.any(Number),
                     created_at: expect.any(String),
-                    author: expect.any(String),
-                    body: expect.any(String),
+                    author: "lurker",
+                    body: "Hello world",
                     article_id: expect.any(Number)
                 })
             })
