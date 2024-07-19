@@ -1,22 +1,20 @@
-const db = require("../db/connection")
+const db = require("../db/connection");
 const { checkTopicExists } = require("./model-utils");
 
 function fetchArticleById(articleId) {
-  let sqlString =
-  `SELECT articles.*, COUNT(comments.comment_id) AS comment_count
+    let sqlString = `SELECT articles.*, COUNT(comments.comment_id) AS comment_count
   FROM articles
   LEFT JOIN comments
   ON articles.article_id = comments.article_id
   WHERE articles.article_id = $1
-  GROUP BY articles.article_id`
+  GROUP BY articles.article_id`;
 
-  return db.query(sqlString, [articleId])
-  .then(({ rows }) => {
-    if (rows.length === 0) {
-      return Promise.reject({ status: 404, message: "Not found" });
-    }
-    return rows[0];
-  })
+    return db.query(sqlString, [articleId]).then(({ rows }) => {
+        if (rows.length === 0) {
+            return Promise.reject({ status: 404, message: "Not found" });
+        }
+        return rows[0];
+    });
 }
 
 function fetchArticles(sortBy = "created_at", order = "desc", topic) {
@@ -43,75 +41,67 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
 
     if (topic) {
         return checkTopicExists(topic).then((result) => {
-        if (result === false) {
-            return Promise.reject({ status: 400, message: "Bad request" });
-        } else {
-            sqlString += `WHERE topic = $1 `
-            queryValues.push(topic);
-
-            sqlString += `GROUP BY articles.article_id `
-
-            if (sortBy) {
-                sqlString += `ORDER BY ${sortBy} `
-            if (order === "asc") {
-                sqlString += `ASC`
-            } else if (order === "desc") {
-                sqlString += `DESC`
-            } else if (order) {
+            if (result === false) {
                 return Promise.reject({ status: 400, message: "Bad request" });
-            }
-            }
+            } else {
+                sqlString += `WHERE topic = $1 `;
+                queryValues.push(topic);
 
-            return db.query(sqlString, queryValues).then(({ rows }) => {
-                return rows;
-            })
+                sqlString += `GROUP BY articles.article_id `;
+
+                if (sortBy) {
+                    sqlString += `ORDER BY ${sortBy} `;
+                    if (order === "asc") {
+                        sqlString += `ASC`;
+                    } else if (order === "desc") {
+                        sqlString += `DESC`;
+                    } else if (order) {
+                        return Promise.reject({
+                            status: 400,
+                            message: "Bad request",
+                        });
+                    }
+                }
+
+                return db.query(sqlString, queryValues).then(({ rows }) => {
+                    return rows;
+                });
             }
         });
     } else {
-        sqlString += `GROUP BY articles.article_id `
+        sqlString += `GROUP BY articles.article_id `;
 
-            if (sortBy) {
-                sqlString += `ORDER BY ${sortBy} `
+        if (sortBy) {
+            sqlString += `ORDER BY ${sortBy} `;
             if (order === "asc") {
-                sqlString += `ASC`
+                sqlString += `ASC`;
             } else if (order === "desc") {
-                sqlString += `DESC`
+                sqlString += `DESC`;
             } else if (order) {
                 return Promise.reject({ status: 400, message: "Bad request" });
             }
-            }
+        }
 
-            return db.query(sqlString, queryValues).then(({ rows }) => {
-            return rows
-            })
+        return db.query(sqlString, queryValues).then(({ rows }) => {
+            return rows;
+        });
     }
 }
 
 function updateArticleById(articleId, votes) {
-  if (typeof votes !== "number") {
-    return Promise.reject({ status: 400, message: "Bad request" });
-  }
-  return db
-    .query(
-      `SELECT votes
-        FROM articles
-        WHERE article_id = $1;`,
-      [articleId]
-    )
-    .then(({ rows }) => {
-      let currentVotes = rows[0].votes;
-      let totalVotes = (currentVotes += votes);
-      if (totalVotes < 0) {
-        totalVotes = 0;
-      }
-      const votesAndId = [totalVotes, articleId];
-      let sqlString = `UPDATE articles
-        SET votes = $1
-        WHERE article_id = $2
-        RETURNING *`;
-      return db.query(sqlString, votesAndId).then(({ rows }) => {
+    if (typeof votes !== "number") {
+        return Promise.reject({ status: 400, message: "Bad request" });
+    }
+    const sqlString = `UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *`;
+
+    return db.query(sqlString, [votes, articleId]).then(({ rows }) => {
+        if (rows[0].votes < 0) {
+            rows[0].votes = 0;
+        }
         return rows[0];
-      });
     });
 }
 
