@@ -13,11 +13,11 @@ apiRouter.get("/", (request, response) => {
     response.status(200).send({ endpoints });
 });
 
+apiRouter.use("/articles", articlesRouter)
+
 apiRouter.get("/topics", getTopics);
 
 apiRouter.get("/users", getUsers);
-
-apiRouter.use("/articles", articlesRouter)
 
 apiRouter.delete("/comments/:comment_id", deleteComment);
 

@@ -4,7 +4,9 @@ function fetchComments(id) {
     let sqlString = `SELECT * FROM comments
     WHERE article_id = $1
     ORDER BY created_at DESC`;
-    return db.query(sqlString, [id]).then(({ rows }) => {
+    return db.query(sqlString, [id])
+    .then(({ rows }) => {
+        // console.log(rows, "<<<< Rows")
         if (rows.length === 0) {
             return Promise.reject({ status: 404, message: "Not found" });
         }
