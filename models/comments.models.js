@@ -1,14 +1,19 @@
 const db = require("../db/connection");
+const { checkExists } = require("./model-utils");
 
 function fetchComments(id) {
     let sqlString = `SELECT * FROM comments
     WHERE article_id = $1
     ORDER BY created_at DESC`;
-    return db.query(sqlString, [id]).then(({ rows }) => {
-        if (rows.length === 0) {
-            return Promise.reject({ status: 404, message: "Not found" });
-        }
-        return rows;
+    return db.query(sqlString, [id])
+    .then(({ rows }) => {
+        return checkExists("articles", "article_id", id)
+        .then((result) => {
+            if(result === false) {
+                return Promise.reject({ status: 404, message: "Not found" });
+            }
+            return rows;
+        })
     });
 }
 

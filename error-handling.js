@@ -3,20 +3,16 @@ const catchInvalidEndpoints = (request, response) => {
 };
 
 const badRequestError = (error, request, response, next) => {
-    const isAUserInsertionError = /"users".$/.test(error.detail);
     if (
         error.code === "23502" ||
-        error.code === "22P02" ||
-        isAUserInsertionError
-    ) {
+        error.code === "22P02") {
         response.status(400).send({ message: "Bad request" });
     }
     next(error);
 };
 
 const notFoundError = (error, request, response, next) => {
-    const isAnArticleInsertionError = /"articles".$/.test(error.detail);
-    if (error.code === "22003" || isAnArticleInsertionError) {
+    if (error.code === "22003" || error.code === "23503") {
         response.status(404).send({ message: "Not found" });
     }
     next(error);
