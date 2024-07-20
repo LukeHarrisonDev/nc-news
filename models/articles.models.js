@@ -40,7 +40,8 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
         LEFT JOIN comments ON articles.article_id = comments.article_id `;
 
     if (topic) {
-        return checkExists("topics", "slug", topic).then((result) => {
+        return checkExists("topics", "slug", topic)
+        .then((result) => {
             if (result === false) {
                 return Promise.reject({ status: 400, message: "Bad request" });
             } else {

@@ -366,7 +366,7 @@ describe("/api/articles/:article_id/comments", () => {
 
             })
         })
-        test.only("GET 200: Responds with an empty array if the given article doesn't have any comments", () => {
+        test("GET 200: Responds with an empty array if the given article doesn't have any comments", () => {
             return request(app)
             .get("/api/articles/2/comments")
             .expect(200)
@@ -374,7 +374,6 @@ describe("/api/articles/:article_id/comments", () => {
                 expect(body.comments).toEqual([])
             })
         })
-        /// DO A TEST FOR WHEN AN ARTICLE DOESNT HAVE COMMENTS
         test("GET 200: Responds with an array of all comment objects that relate to the given article_id with the properties of comment_id, votes, created_at, author, body and article_id", () => {
             return request(app)
             .get("/api/articles/1/comments")
