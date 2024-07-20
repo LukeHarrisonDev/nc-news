@@ -74,6 +74,31 @@ describe("/api/users", () => {
     })
 })
 
+describe("/api/users/:username", () => {
+    describe("GET", () => {
+        test("GET 200: Responds with the user object with the given username", () => {
+            return request(app)
+            .get("/api/users/butter_bridge")
+            .expect(200)
+            .then (({body}) => {
+                expect(body.user).toMatchObject({
+                    username: 'butter_bridge',
+                    name: 'jonny',
+                    avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
+                })
+            })
+        })
+        test("GET 404: Responds with a 'Not found' when entering an username that does not exist", () => {
+            return request(app)
+            .get("/api/users/not-a-user")
+            .expect(404)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Not found"})
+            })
+        })
+    })
+})
+
 describe("/api/articles", () => {
     describe("GET", () => {
         test("GET 200: Responds with an array of all article objects sorted by 'date' by default", () => {
@@ -224,7 +249,7 @@ describe("/api/articles/:article_id", () => {
                   })
             })
         })
-        test("GET 400: Responds with a 'Bad request' Error when entering an ID that is not a number", () => {
+        test("GET 400: Responds with a 'Bad request' when entering an ID that is not a number", () => {
             return request(app)
             .get("/api/articles/not-a-number")
             .expect(400)
@@ -232,7 +257,7 @@ describe("/api/articles/:article_id", () => {
                 expect(body).toEqual({message: "Bad request"})
             })
         })
-        test("GET 404: Responds with a 'Not found' Error when entering an ID that does not exist", () => {
+        test("GET 404: Responds with a 'Not found' when entering an ID that does not exist", () => {
             return request(app)
             .get("/api/articles/99999")
             .expect(404)

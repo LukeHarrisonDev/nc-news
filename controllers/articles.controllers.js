@@ -22,10 +22,10 @@ function getArticles(request, response, next) {
     const topic = request.query.topic;
     fetchArticles(sort_by, order, topic)
         .then((articles) => {
-
             response.status(200).send({ articles });
         })
         .catch((error) => {
+            // console.log("><><><><><><><<<<<<<<<<<<<<<<<<<<")
             next(error);
         });
 }
