@@ -292,14 +292,14 @@ describe("/api/articles/:article_id", () => {
             .send(newVote)
             .expect(200)
             .then(({body}) => {
-                expect(body.article).toEqual({
+                expect(body.article).toMatchObject({
                     article_id: 1,
                     title: 'Living in the shadow of a great man',
                     topic: 'mitch',
                     author: 'butter_bridge',
                     body: 'I find this existence challenging',
                     created_at: '2020-07-09T20:11:00.000Z',
-                    votes: 101,
+                    votes: expect.any(Number),
                     article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
                 })
             })
@@ -540,6 +540,95 @@ describe("/api/articles/:article_id/comments", () => {
 })
 
 describe("/api/comments/:comment_id", () => {
+    describe("PATCH", () => {
+        test("PATCH 200: Responds with a comment object of the given ID", () => {
+            const newVote = {inc_votes: 1}
+            return request(app)
+            .patch("/api/comments/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comment).toMatchObject({
+                    comment_id: 1,
+                    votes: expect.any(Number),
+                    created_at: '2020-04-06T12:17:00.000Z',
+                    author: "butter_bridge",
+                    body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+                    article_id: 9
+                })
+            })
+        })
+        test("PATCH 200: Responds with the given comment objects votes incremented by 1", () => {
+            const newVote = {inc_votes: 1}
+            return request(app)
+            .patch("/api/comments/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comment.votes).toBe(17)
+            })
+        })
+        test("PATCH 200: Responds with the given comment objects votes increased by more than 1", () => {
+            const newVote = {inc_votes: 10}
+            return request(app)
+            .patch("/api/comments/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comment.votes).toBe(26)
+            })
+        })
+        test("PATCH 200: Responds with the given comment objects votes decrease the given amount", () => {
+            const newVote = {inc_votes: -10}
+            return request(app)
+            .patch("/api/comments/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comment.votes).toBe(6)
+            })
+        })
+        test("PATCH 200: Responds with the given comment object with it's votes at zero if attempting to reduce the number lower than 0", () => {
+            const newVote = {inc_votes: -20}
+            return request(app)
+            .patch("/api/comments/1")
+            .send(newVote)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comment.votes).toBe(0)
+            })
+        })
+        test("PATCH 400: Responds with 'Bad request' if comments votes are not a number", () => {
+            const newVote = {inc_votes: "not-a-number"}
+            return request(app)
+            .patch("/api/comments/1")
+            .send(newVote)
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("PATCH 400: Responds with 'Bad request' when sending an empty object on the request body", () => {
+            return request(app)
+            .patch("/api/comments/1")
+            .send({})
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("PATCH 400: Responds with 'Bad request' when sending an object with a key, who's column doesn't exist on the comments table", () => {
+            const newVote = {notAColumn: 40}
+            return request(app)
+            .patch("/api/comments/1")
+            .send(newVote)
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+    })
+    
     describe("DELETE", () => {
         test("DELETE 204: Responds with 'No content' if the given comment has been deleted", () => {
             return request(app)

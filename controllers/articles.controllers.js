@@ -25,7 +25,6 @@ function getArticles(request, response, next) {
             response.status(200).send({ articles });
         })
         .catch((error) => {
-            // console.log("><><><><><><><<<<<<<<<<<<<<<<<<<<")
             next(error);
         });
 }

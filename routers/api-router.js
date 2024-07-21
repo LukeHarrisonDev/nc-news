@@ -1,8 +1,8 @@
 const apiRouter = require("express").Router()
 const articlesRouter = require("./articles-router")
 const usersRouter = require("./users-router")
+const commentsRouter = require("./comments-router")
 
-const { deleteComment } = require("../controllers/comments.controllers")
 const { getTopics } = require("../controllers/topics.controllers")
 
 const endpoints = require("../endpoints.json")
@@ -17,6 +17,6 @@ apiRouter.get("/topics", getTopics)
 
 apiRouter.use("/users", usersRouter)
 
-apiRouter.delete("/comments/:comment_id", deleteComment)
+apiRouter.use("/comments", commentsRouter)
 
 module.exports = apiRouter

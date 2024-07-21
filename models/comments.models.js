@@ -1,13 +1,13 @@
 const db = require("../db/connection");
 const { checkExists } = require("./model-utils");
 
-function fetchComments(id) {
+function fetchComments(articleId) {
     let sqlString = `SELECT * FROM comments
     WHERE article_id = $1
     ORDER BY created_at DESC`;
-    return db.query(sqlString, [id])
+    return db.query(sqlString, [articleId])
     .then(({ rows }) => {
-        return checkExists("articles", "article_id", id)
+        return checkExists("articles", "article_id", articleId)
         .then((result) => {
             if(result === false) {
                 return Promise.reject({ status: 404, message: "Not found" });
@@ -35,6 +35,24 @@ function insertComment(newComment, article_id) {
     });
 }
 
+function updateComment(commentId, votes) {
+    if (typeof votes !== "number") {
+        return Promise.reject({ status: 400, message: "Bad request" });
+    }
+    let sqlString =
+    `UPDATE comments
+    SET votes = votes + $1
+    WHERE comment_id = $2
+    RETURNING *`
+    return db.query(sqlString, [votes, commentId])
+    .then(({rows}) => {
+        if(rows[0].votes < 0) {
+            rows[0].votes = 0
+        }
+        return rows[0]
+    })
+}
+
 function removeComment(articleId) {
     let sqlString = `DELETE FROM comments
     WHERE comment_id = $1
@@ -46,4 +64,4 @@ function removeComment(articleId) {
     });
 }
 
-module.exports = { fetchComments, insertComment, removeComment };
+module.exports = { fetchComments, insertComment, removeComment, updateComment };
