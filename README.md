@@ -3,7 +3,7 @@
 # Hosted API Link
 
 https://nc-news-4-life.onrender.com/api
-the "/api" with show you a list of endpoints and queries that you can use.
+the "/api" will show you a list of endpoints and queries that you can use.
 
 # The Project
 
