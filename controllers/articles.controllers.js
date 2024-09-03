@@ -3,18 +3,8 @@ const {
     fetchArticleById,
     fetchArticles,
     updateArticleById,
+    addArticle,
 } = require("../models/articles.models");
-
-function getArticleById(request, response, next) {
-    const article_id = request.params.article_id;
-    fetchArticleById(article_id)
-        .then((article) => {
-            response.status(200).send({ article });
-        })
-        .catch((error) => {
-            next(error);
-        });
-}
 
 function getArticles(request, response, next) {
     const sort_by = request.query.sort_by;
@@ -23,6 +13,28 @@ function getArticles(request, response, next) {
     fetchArticles(sort_by, order, topic)
         .then((articles) => {
             response.status(200).send({ articles });
+        })
+        .catch((error) => {
+            next(error);
+        });
+}
+
+function postArticle(request, response, next) {
+    const newArticle = request.body
+    addArticle(newArticle)
+    .then((article) => {
+        response.status(201).send({ article })
+    })
+    .catch((error) => {
+        next(error)
+    })
+}
+
+function getArticleById(request, response, next) {
+    const article_id = request.params.article_id;
+    fetchArticleById(article_id)
+        .then((article) => {
+            response.status(200).send({ article });
         })
         .catch((error) => {
             next(error);
@@ -41,4 +53,4 @@ function patchArticleById(request, response, next) {
         });
 }
 
-module.exports = { getArticleById, getArticles, patchArticleById };
+module.exports = { getArticleById, getArticles, patchArticleById, postArticle };
