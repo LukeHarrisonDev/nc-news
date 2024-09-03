@@ -229,7 +229,7 @@ describe("/api/articles", () => {
         })
     })
     describe("POST", () => {
-        test("POST 201: Responds with 201 status code and the posted comment", () => {
+        test("POST 201: Responds with 201 status code and the posted article", () => {
             const newArticle = {
                 author: "butter_bridge",
                 title: "Golden Cat Spotted",
@@ -252,6 +252,21 @@ describe("/api/articles", () => {
                     created_at: expect.any(String),
                     comment_count: expect.any(String)
                 })
+            })
+        })
+        test("POST 404: Responds with a 'Not Found' when posting an article under an author that doesn't exist", () => {
+            const newArticle = {
+                author: "not-an-author",
+                title: "Golden Cat Spotted",
+                body: "It was feared extinct, but in positive news, a species of golden cat not seen in over 80 years has been rediscovered.",
+                topic: 'cats'
+            }
+            return request(app)
+            .post("/api/articles")
+            .send(newArticle)
+            .expect(404)
+            .then (({body}) => {
+                expect(body).toEqual({message: "Not found"})
             })
         })
     })

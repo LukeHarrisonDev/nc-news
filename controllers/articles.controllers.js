@@ -25,6 +25,9 @@ function postArticle(request, response, next) {
     .then((article) => {
         response.status(201).send({ article })
     })
+    .catch((error) => {
+        next(error)
+    })
 }
 
 function getArticleById(request, response, next) {
