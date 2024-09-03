@@ -1,22 +1,6 @@
 const db = require("../db/connection");
 const { checkExists } = require("./model-utils");
 
-function fetchArticleById(articleId) {
-    let sqlString = `SELECT articles.*, COUNT(comments.comment_id) AS comment_count
-  FROM articles
-  LEFT JOIN comments
-  ON articles.article_id = comments.article_id
-  WHERE articles.article_id = $1
-  GROUP BY articles.article_id`;
-
-    return db.query(sqlString, [articleId]).then(({ rows }) => {
-        if (rows.length === 0) {
-            return Promise.reject({ status: 404, message: "Not found" });
-        }
-        return rows[0];
-    });
-}
-
 function fetchArticles(sortBy = "created_at", order = "desc", topic) {
     let topicExists = [];
 
@@ -89,6 +73,45 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
     }
 }
 
+function addArticle(newArticle) {
+    let sqlString =
+    `INSERT INTO articles (author, title, body, topic)
+    VALUES ($1, $2, $3, $4) 
+    RETURNING *`
+    const values = [
+        newArticle.author,
+        newArticle.title,
+        newArticle.body,
+        newArticle.topic,
+    ];
+    return db.query(sqlString, values).then(({ rows }) => {
+        let article = rows
+        let sqlString2 = 
+        `SELECT COUNT(article_id) AS comment_count FROM comments WHERE article_id = ${rows[0].article_id}`
+        return db.query(sqlString2).then(({rows}) => {
+            article[0].comment_count = rows[0].comment_count
+            return article[0]
+        })
+    });
+}
+
+function fetchArticleById(articleId) {
+    let sqlString =
+    `SELECT articles.*, COUNT(comments.comment_id) AS comment_count
+    FROM articles
+    LEFT JOIN comments
+    ON articles.article_id = comments.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id`;
+
+    return db.query(sqlString, [articleId]).then(({ rows }) => {
+        if (rows.length === 0) {
+            return Promise.reject({ status: 404, message: "Not found" });
+        }
+        return rows[0];
+    });
+}
+
 function updateArticleById(articleId, votes) {
     if (typeof votes !== "number") {
         return Promise.reject({ status: 400, message: "Bad request" });
@@ -106,4 +129,4 @@ function updateArticleById(articleId, votes) {
     });
 }
 
-module.exports = { fetchArticleById, fetchArticles, updateArticleById };
+module.exports = { fetchArticleById, fetchArticles, updateArticleById, addArticle };

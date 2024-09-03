@@ -8,8 +8,8 @@ function checkExists(table, column, value) {
     let sqlString =
     `SELECT * FROM %I
     WHERE %I = %L`
-    const formarttedString = format(sqlString, table, column, value)
-    return db.query(formarttedString)
+    const formattedString = format(sqlString, table, column, value)
+    return db.query(formattedString)
     .then(({rows}) => {
         if(rows.length === 0) {
             return false

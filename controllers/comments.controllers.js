@@ -1,6 +1,6 @@
 const {
     fetchComments,
-    insertComment,
+    addComment,
     removeComment,
     updateComment,
 } = require("../models/comments.models");
@@ -19,7 +19,7 @@ function getComments(request, response, next) {
 function postComment(request, response, next) {
     const newComment = request.body;
     const articleId = request.params;
-    insertComment(newComment, articleId)
+    addComment(newComment, articleId)
         .then((comment) => {
             response.status(201).send({ comment });
         })
