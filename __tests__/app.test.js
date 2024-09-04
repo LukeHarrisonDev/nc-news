@@ -314,6 +314,21 @@ describe("/api/articles", () => {
                 expect(body).toEqual({message: "Bad request"})
             })
         })
+        test("POST 400: Responds with a 'Bad request' when posting an article with a missing required field", () => {
+            const newArticle = {
+                author: "butter_bridge",
+                title: "Golden Cat Spotted",
+                topic: 'cats'
+            }
+            return request(app)
+            .post("/api/articles")
+            .send(newArticle)
+            .expect(400)
+            .then (({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+
+        })
     })
 })
 

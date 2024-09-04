@@ -74,7 +74,7 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
 }
 
 function addArticle(newArticle) {
-    if (Object.keys(newArticle).length <= 1 || newArticle.body.length === 0 || newArticle.title.length === 0) {
+    if (Object.keys(newArticle).length <= 3 || newArticle.body.length === 0 || newArticle.title.length === 0) {
         return Promise.reject({ status: 400, message: "Bad request" })
     }
     return checkExists("topics", "slug", newArticle.topic)
@@ -97,6 +97,7 @@ function addArticle(newArticle) {
                 let sqlString2 = 
                 `SELECT COUNT(article_id) AS comment_count FROM comments WHERE article_id = ${rows[0].article_id}`
                 return db.query(sqlString2).then(({rows}) => {
+                    // console.log(rows, "<<<< ")
                     article[0].comment_count = rows[0].comment_count
                     return article[0]
                 })
