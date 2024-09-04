@@ -241,6 +241,7 @@ describe("/api/articles", () => {
             .send(newArticle)
             .expect(201)
             .then(({body}) => {
+                console.log(JSON.stringify(body), "<<< Bod")
                 expect(body.article).toMatchObject({
                     author: "butter_bridge",
                     title: "Golden Cat Spotted",
