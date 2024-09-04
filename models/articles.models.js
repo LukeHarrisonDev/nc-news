@@ -74,7 +74,7 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
 }
 
 function addArticle(newArticle) {
-    if (Object.keys(newArticle).length <= 1 || newArticle.body.length === 0) {
+    if (Object.keys(newArticle).length <= 1 || newArticle.body.length === 0 || newArticle.title.length === 0) {
         return Promise.reject({ status: 400, message: "Bad request" })
     }
     return checkExists("topics", "slug", newArticle.topic)
