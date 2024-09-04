@@ -52,6 +52,22 @@
       ]
     }
   },
+  "POST /api/articles": {
+    "description": "posts a new article and serves that article",
+    "queries": [],
+    "exampleResponse": {
+      "article":{
+        "article_id":14,
+        "title":"Golden Cat Spotted"
+        ,"topic":"cats"
+        ,"author":"butter_bridge"
+        ,"body":"It was feared extinct, but in positive news, a species of golden cat not seen in over 80 years has been rediscovered.",
+        "created_at":"2024-09-04T09:44:29.615Z",
+        "votes":0,"article_img_url":"https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+        "comment_count":"0"
+      }
+    }
+  },
   "GET /api/articles/:article_id": {
     "description": "serves an article with the given article_id",
     "queries": [],

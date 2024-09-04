@@ -97,7 +97,6 @@ function addArticle(newArticle) {
                 let sqlString2 = 
                 `SELECT COUNT(article_id) AS comment_count FROM comments WHERE article_id = ${rows[0].article_id}`
                 return db.query(sqlString2).then(({rows}) => {
-                    // console.log(rows, "<<<< ")
                     article[0].comment_count = rows[0].comment_count
                     return article[0]
                 })
