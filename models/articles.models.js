@@ -74,6 +74,9 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
 }
 
 function addArticle(newArticle) {
+    if (Object.keys(newArticle).length <= 1 || newArticle.body.length === 0) {
+        return Promise.reject({ status: 400, message: "Bad request" });
+    }
     let sqlString =
     `INSERT INTO articles (author, title, body, topic)
     VALUES ($1, $2, $3, $4) 

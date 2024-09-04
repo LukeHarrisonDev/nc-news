@@ -254,7 +254,7 @@ describe("/api/articles", () => {
                 })
             })
         })
-        test("POST 404: Responds with a 'Not Found' when posting an article under an author that doesn't exist", () => {
+        test("POST 404: Responds with a 'Not found' when posting an article under an author that doesn't exist", () => {
             const newArticle = {
                 author: "not-an-author",
                 title: "Golden Cat Spotted",
@@ -267,6 +267,21 @@ describe("/api/articles", () => {
             .expect(404)
             .then (({body}) => {
                 expect(body).toEqual({message: "Not found"})
+            })
+        })
+        test("POST 400: Responds with a 'Bad request' when posting an article without a body", () => {
+            const newArticle = {
+                author: "butter_bridge",
+                title: "Golden Cat Spotted",
+                body: "",
+                topic: 'cats'
+            }
+            return request(app)
+            .post("/api/articles")
+            .send(newArticle)
+            .expect(400)
+            .then (({body}) => {
+                expect(body).toEqual({message: "Bad request"})
             })
         })
     })
