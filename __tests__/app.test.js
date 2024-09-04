@@ -284,6 +284,21 @@ describe("/api/articles", () => {
                 expect(body).toEqual({message: "Bad request"})
             })
         })
+        test("POST 400: Responds with a 'Bad request' when posting an article with a topic that doesn't exist", () => {
+            const newArticle = {
+                author: "butter_bridge",
+                title: "Golden Cat Spotted",
+                body: "It was feared extinct, but in positive news, a species of golden cat not seen in over 80 years has been rediscovered.",
+                topic: 'not-a-topic'
+            }
+            return request(app)
+            .post("/api/articles")
+            .send(newArticle)
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
     })
 })
 

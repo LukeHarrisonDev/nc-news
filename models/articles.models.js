@@ -75,27 +75,34 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
 
 function addArticle(newArticle) {
     if (Object.keys(newArticle).length <= 1 || newArticle.body.length === 0) {
-        return Promise.reject({ status: 400, message: "Bad request" });
+        return Promise.reject({ status: 400, message: "Bad request" })
     }
-    let sqlString =
-    `INSERT INTO articles (author, title, body, topic)
-    VALUES ($1, $2, $3, $4) 
-    RETURNING *`
-    const values = [
-        newArticle.author,
-        newArticle.title,
-        newArticle.body,
-        newArticle.topic,
-    ];
-    return db.query(sqlString, values).then(({ rows }) => {
-        let article = rows
-        let sqlString2 = 
-        `SELECT COUNT(article_id) AS comment_count FROM comments WHERE article_id = ${rows[0].article_id}`
-        return db.query(sqlString2).then(({rows}) => {
-            article[0].comment_count = rows[0].comment_count
-            return article[0]
-        })
-    });
+    return checkExists("topics", "slug", newArticle.topic)
+    .then((result) => {
+        if (result === false) {
+            return Promise.reject({ status: 400, message: "Bad request" })
+        } else {
+            let sqlString =
+            `INSERT INTO articles (author, title, body, topic)
+            VALUES ($1, $2, $3, $4) 
+            RETURNING *`
+            const values = [
+                newArticle.author,
+                newArticle.title,
+                newArticle.body,
+                newArticle.topic,
+            ]
+            return db.query(sqlString, values).then(({ rows }) => {
+                let article = rows
+                let sqlString2 = 
+                `SELECT COUNT(article_id) AS comment_count FROM comments WHERE article_id = ${rows[0].article_id}`
+                return db.query(sqlString2).then(({rows}) => {
+                    article[0].comment_count = rows[0].comment_count
+                    return article[0]
+                })
+            })
+        }
+    })
 }
 
 function fetchArticleById(articleId) {
