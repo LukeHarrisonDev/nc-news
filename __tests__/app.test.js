@@ -251,6 +251,26 @@ describe("/api/articles", () => {
                 expect(body).toEqual({message: "Bad request"})
             })
         })
+        test("?p= 200: Responds with articles starting at an offset point based on the given limit", () => {
+            return request(app)
+            .get("/api/articles?limit=4&p=3")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(4)
+                expect(body.articles[0]).toEqual(
+                    {
+                        author: 'rogersop',
+                        title: 'Seven inspirational thought leaders from Manchester UK',
+                        article_id: 10,
+                        topic: 'mitch',
+                        created_at: '2020-05-14T04:15:00.000Z',
+                        votes: 0,
+                        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+                        comment_count: '0'
+                    }
+                )
+            })
+        })
     })
     describe("POST", () => {
         test("POST 201: Responds with 201 status code and the posted article", () => {

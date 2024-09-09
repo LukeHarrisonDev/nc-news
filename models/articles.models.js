@@ -1,7 +1,7 @@
 const db = require("../db/connection");
 const { checkExists } = require("./model-utils");
 
-function fetchArticles(sortBy = "created_at", order = "desc", topic, limit) {
+function fetchArticles(sortBy = "created_at", order = "desc", topic, limit, page) {
 
     const greenList = [
         "author",
@@ -38,11 +38,6 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic, limit) {
                 sqlString += `WHERE topic = $1 `;
                 queryValues.push(topic);
 
-                // if (limit) {
-                //     sqlString += `LIMIT $2 `
-                //     queryValues.push(limit)
-                // }
-
                 sqlString += `GROUP BY articles.article_id `;
 
                 if (sortBy) {
@@ -58,6 +53,11 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic, limit) {
                         });
                     }
                 }
+
+                // if (limit) {
+                //     sqlString += `LIMIT $2 `
+                //     queryValues.push(limit)
+                // }
 
                 return db.query(sqlString, queryValues).then(({ rows }) => {
                     return rows;
@@ -77,10 +77,15 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic, limit) {
                 return Promise.reject({ status: 400, message: "Bad request" });
             }
         }
-
         if (limit) {
             sqlString += `LIMIT $1 `
             queryValues.push(limit)
+            if (page) {
+                let pageCalulation = page - 1
+                pageCalulation *= limit
+                sqlString += `OFFSET $2 `
+                queryValues.push(pageCalulation)
+            }
         }
 
         return db.query(sqlString, queryValues).then(({ rows }) => {
