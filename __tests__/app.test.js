@@ -197,12 +197,12 @@ describe("/api/articles", () => {
                 })
             })
         })
-        test("?topic= 400: Responds with 'Bad request' when the 'topic' query doesn't exist", () => {
+        test("?topic= 404: Responds with 'Not found' when the 'topic' query doesn't exist", () => {
             return request(app)
             .get("/api/articles?topic=not-a-topic")
-            .expect(400)
+            .expect(404)
             .then(({body}) => {
-                expect(body).toEqual({message: "Bad request"})
+                expect(body).toEqual({message: "Not found"})
             })
         })
         test("?topic= 200: Responds with an empty array when the 'topic' exists but has no data associated with it", () => {
