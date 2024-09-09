@@ -27,7 +27,7 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
         return checkExists("topics", "slug", topic)
         .then((result) => {
             if (result === false) {
-                return Promise.reject({ status: 400, message: "Bad request" });
+                return Promise.reject({ status: 404, message: "Not found" });
             } else {
                 sqlString += `WHERE topic = $1 `;
                 queryValues.push(topic);
