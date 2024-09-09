@@ -81,14 +81,19 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic, limit, page
             sqlString += `LIMIT $1 `
             queryValues.push(limit)
             if (page) {
-                let pageCalulation = page - 1
-                pageCalulation *= limit
-                sqlString += `OFFSET $2 `
-                queryValues.push(pageCalulation)
+                if (page !== 1) {
+                    let pageCalulation = page - 1
+                    pageCalulation *= limit
+                    sqlString += `OFFSET $2 `
+                    queryValues.push(pageCalulation)
+                }
             }
         }
 
         return db.query(sqlString, queryValues).then(({ rows }) => {
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, message: "Not found" });
+            }
             return rows;
         });
     }
