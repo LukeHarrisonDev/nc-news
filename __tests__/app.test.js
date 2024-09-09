@@ -227,6 +227,106 @@ describe("/api/articles", () => {
                 })
             })
         })
+        test("?limit= 200: Responds with only the amount of articles specified in the given limit", () => {
+            return request(app)
+            .get("/api/articles?limit=10")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(10)
+            })
+        })
+        test("?limit= 200: Responds with all articles if the given limit is higher than the amount of articles", () => {
+            return request(app)
+            .get("/api/articles?limit=100")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(13)
+            })
+        })
+        test("?limit= 400: Responds with 'Bad request' if the given limit is not a number", () => {
+            return request(app)
+            .get("/api/articles?limit=not-a-number")
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("?p= 200: Responds with articles starting at an offset point based on the given limit", () => {
+            return request(app)
+            .get("/api/articles?limit=4&p=3")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(4)
+                expect(body.articles[0]).toEqual(
+                    {
+                        author: 'rogersop',
+                        title: 'Seven inspirational thought leaders from Manchester UK',
+                        article_id: 10,
+                        topic: 'mitch',
+                        created_at: '2020-05-14T04:15:00.000Z',
+                        votes: 0,
+                        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+                        comment_count: '0'
+                    }
+                )
+            })
+        })
+        test("?p= 200: Responds with the first set of articles if the page given is page 1", () => {
+            return request(app)
+            .get("/api/articles?limit=4&p=1")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(4)
+                expect(body.articles[3]).toEqual(
+                    {
+                        author: 'butter_bridge',
+                        title: 'Moustache',
+                        article_id: 12,
+                        topic: 'mitch',
+                        created_at: '2020-10-11T11:24:10.000Z',
+                        votes: 0,
+                        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+                        comment_count: '0'
+                      }
+                )
+            })
+        })
+        test("?p= 404: Responds with 'Not found' if the given limit doesn't respond with any articles for the given page", () => {
+            return request(app)
+            .get("/api/articles?limit=4&p=5")
+            .expect(404)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Not found"})
+            })
+        })
+        test("?p= 400: Responds with 'Bad request' if the give page number is not a number", () => {
+            return request(app)
+            .get("/api/articles?limit=4&p=not-a-number")
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
+        test("?topic=&limit=&p= 200: Responds with articles of the given topic, limit and page", () => {
+            return request(app)
+            .get("/api/articles?topic=mitch&limit=4&p=2")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(4)
+                expect(body.articles[0]).toEqual(
+                    {
+                        author: 'butter_bridge',
+                        title: 'Another article about Mitch',
+                        article_id: 13,
+                        topic: 'mitch',
+                        created_at: '2020-10-11T11:24:00.000Z',
+                        votes: 0,
+                        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+                        comment_count: '0'
+                      }
+                )
+            })
+        })
     })
     describe("POST", () => {
         test("POST 201: Responds with 201 status code and the posted article", () => {

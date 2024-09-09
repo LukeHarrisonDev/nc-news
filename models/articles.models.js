@@ -1,8 +1,7 @@
 const db = require("../db/connection");
 const { checkExists } = require("./model-utils");
 
-function fetchArticles(sortBy = "created_at", order = "desc", topic) {
-    let topicExists = [];
+function fetchArticles(sortBy = "created_at", order = "desc", topic, limit, page) {
 
     const greenList = [
         "author",
@@ -18,6 +17,13 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
     if (!greenList.includes(sortBy)) {
         return Promise.reject({ status: 400, message: "Bad request" });
     }
+
+    if (limit) {
+        if (typeof +limit !== "number") {
+            return Promise.reject({ status: 400, message: "Bad request" });
+        }
+    }
+
     const queryValues = [];
     let sqlString = `SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.article_id) AS comment_count
         FROM articles
@@ -37,14 +43,27 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
                 if (sortBy) {
                     sqlString += `ORDER BY ${sortBy} `;
                     if (order === "asc") {
-                        sqlString += `ASC`;
+                        sqlString += `ASC `;
                     } else if (order === "desc") {
-                        sqlString += `DESC`;
+                        sqlString += `DESC `;
                     } else if (order) {
                         return Promise.reject({
                             status: 400,
                             message: "Bad request",
                         });
+                    }
+                }
+
+                if (limit) {
+                    sqlString += `LIMIT $2 `
+                    queryValues.push(limit)
+                    if (page) {
+                        if (page !== 1) {
+                            let pageCalulation = page - 1
+                            pageCalulation *= limit
+                            sqlString += `OFFSET $3 `
+                            queryValues.push(pageCalulation)
+                        }
                     }
                 }
 
@@ -59,15 +78,30 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
         if (sortBy) {
             sqlString += `ORDER BY ${sortBy} `;
             if (order === "asc") {
-                sqlString += `ASC`;
+                sqlString += `ASC `;
             } else if (order === "desc") {
-                sqlString += `DESC`;
+                sqlString += `DESC `;
             } else if (order) {
                 return Promise.reject({ status: 400, message: "Bad request" });
             }
         }
+        if (limit) {
+            sqlString += `LIMIT $1 `
+            queryValues.push(limit)
+            if (page) {
+                if (page !== 1) {
+                    let pageCalulation = page - 1
+                    pageCalulation *= limit
+                    sqlString += `OFFSET $2 `
+                    queryValues.push(pageCalulation)
+                }
+            }
+        }
 
         return db.query(sqlString, queryValues).then(({ rows }) => {
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, message: "Not found" });
+            }
             return rows;
         });
     }
