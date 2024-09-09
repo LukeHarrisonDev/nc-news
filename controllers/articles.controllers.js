@@ -10,7 +10,8 @@ function getArticles(request, response, next) {
     const sort_by = request.query.sort_by;
     const order = request.query.order;
     const topic = request.query.topic;
-    fetchArticles(sort_by, order, topic)
+    const limit = request.query.limit;
+    fetchArticles(sort_by, order, topic, limit)
         .then((articles) => {
             response.status(200).send({ articles });
         })

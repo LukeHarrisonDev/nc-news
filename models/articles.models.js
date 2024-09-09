@@ -1,7 +1,8 @@
 const db = require("../db/connection");
 const { checkExists } = require("./model-utils");
 
-function fetchArticles(sortBy = "created_at", order = "desc", topic) {
+function fetchArticles(sortBy = "created_at", order = "desc", topic, limit) {
+    // console.log(limit, "<<<< Limit")
     let topicExists = [];
 
     const greenList = [
@@ -32,14 +33,19 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
                 sqlString += `WHERE topic = $1 `;
                 queryValues.push(topic);
 
+                // if (limit) {
+                //     sqlString += `LIMIT $2 `
+                //     queryValues.push(limit)
+                // }
+
                 sqlString += `GROUP BY articles.article_id `;
 
                 if (sortBy) {
                     sqlString += `ORDER BY ${sortBy} `;
                     if (order === "asc") {
-                        sqlString += `ASC`;
+                        sqlString += `ASC `;
                     } else if (order === "desc") {
-                        sqlString += `DESC`;
+                        sqlString += `DESC `;
                     } else if (order) {
                         return Promise.reject({
                             status: 400,
@@ -59,14 +65,20 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic) {
         if (sortBy) {
             sqlString += `ORDER BY ${sortBy} `;
             if (order === "asc") {
-                sqlString += `ASC`;
+                sqlString += `ASC `;
             } else if (order === "desc") {
-                sqlString += `DESC`;
+                sqlString += `DESC `;
             } else if (order) {
                 return Promise.reject({ status: 400, message: "Bad request" });
             }
         }
 
+        if (limit) {
+            sqlString += `LIMIT $1 `
+            queryValues.push(limit)
+        }
+
+        console.log(sqlString, "  ", queryValues, "<<<<< ")
         return db.query(sqlString, queryValues).then(({ rows }) => {
             return rows;
         });

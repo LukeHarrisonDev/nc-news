@@ -227,6 +227,14 @@ describe("/api/articles", () => {
                 })
             })
         })
+        test("?limit= 200: Responds with only the amount of articles specified in the given limit", () => {
+            return request(app)
+            .get("/api/articles?limit=10")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(10)
+            })
+        })
     })
     describe("POST", () => {
         test("POST 201: Responds with 201 status code and the posted article", () => {
