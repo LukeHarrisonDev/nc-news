@@ -2,8 +2,6 @@ const db = require("../db/connection");
 const { checkExists } = require("./model-utils");
 
 function fetchArticles(sortBy = "created_at", order = "desc", topic, limit) {
-    // console.log(limit, "<<<< Limit")
-    let topicExists = [];
 
     const greenList = [
         "author",
@@ -19,6 +17,13 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic, limit) {
     if (!greenList.includes(sortBy)) {
         return Promise.reject({ status: 400, message: "Bad request" });
     }
+
+    if (limit) {
+        if (typeof +limit !== "number") {
+            return Promise.reject({ status: 400, message: "Bad request" });
+        }
+    }
+
     const queryValues = [];
     let sqlString = `SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, article_img_url, COUNT(comments.article_id) AS comment_count
         FROM articles
@@ -78,7 +83,6 @@ function fetchArticles(sortBy = "created_at", order = "desc", topic, limit) {
             queryValues.push(limit)
         }
 
-        console.log(sqlString, "  ", queryValues, "<<<<< ")
         return db.query(sqlString, queryValues).then(({ rows }) => {
             return rows;
         });

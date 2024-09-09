@@ -235,6 +235,22 @@ describe("/api/articles", () => {
                 expect(body.articles).toHaveLength(10)
             })
         })
+        test("?limit= 200: Responds with all articles if the given limit is higher than the amount of articles", () => {
+            return request(app)
+            .get("/api/articles?limit=100")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(13)
+            })
+        })
+        test("?limit= 400: Responds with 'Bad request' if the given limit is not a number", () => {
+            return request(app)
+            .get("/api/articles?limit=not-a-number")
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toEqual({message: "Bad request"})
+            })
+        })
     })
     describe("POST", () => {
         test("POST 201: Responds with 201 status code and the posted article", () => {
