@@ -307,6 +307,26 @@ describe("/api/articles", () => {
                 expect(body).toEqual({message: "Bad request"})
             })
         })
+        test("?topic=&limit=&p= 200: Responds with articles of the given topic, limit and page", () => {
+            return request(app)
+            .get("/api/articles?topic=mitch&limit=4&p=2")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles).toHaveLength(4)
+                expect(body.articles[0]).toEqual(
+                    {
+                        author: 'butter_bridge',
+                        title: 'Another article about Mitch',
+                        article_id: 13,
+                        topic: 'mitch',
+                        created_at: '2020-10-11T11:24:00.000Z',
+                        votes: 0,
+                        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+                        comment_count: '0'
+                      }
+                )
+            })
+        })
     })
     describe("POST", () => {
         test("POST 201: Responds with 201 status code and the posted article", () => {
